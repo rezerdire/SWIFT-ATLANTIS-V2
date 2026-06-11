@@ -32,14 +32,12 @@ tailwind.config = {
 }
 </script>
 <style>
-  /* Minimal custom helpers Tailwind can't express cleanly */
   .eyebrow::before { content:''; display:block; width:20px; height:2px; background:#C9973A; }
   .hero-tag::before { content:''; display:block; width:28px; height:2px; background:#C9973A; }
   .section-title { font-size: clamp(1.8rem, 3vw, 2.6rem); }
   .hero-h1 { font-size: clamp(2.8rem, 4.5vw, 4rem); }
   .detail-title { font-size: clamp(1.8rem, 3vw, 2.5rem); }
 
-  /* Status badge colours */
   .badge-in-progress  { background:#E8F4E8; color:#2A6B2A; }
   .badge-structural   { background:#FFF3E0; color:#8A5200; }
   .badge-finishing    { background:#E8F0FB; color:#1B4A8A; }
@@ -47,38 +45,57 @@ tailwind.config = {
   .badge-completed    { background:#E0F7F4; color:#0A6B5B; }
   .badge-planning     { background:#FFF0F0; color:#8A1B1B; }
 
-  /* Card hover overlay & arrow */
   .proj-card:hover .proj-overlay { opacity:1; }
   .proj-card:hover .proj-arrow   { opacity:1; transform:translate(0,0); }
   .proj-card:hover img           { transform:scale(1.04); }
 
-  /* Detail section heading rule */
   .detail-h4 { display:flex; align-items:center; gap:10px; }
   .detail-h4::after { content:''; flex:1; height:1px; background:#DDD8CC; }
 
-  /* Spec table rows */
   .spec-row { border-bottom:1px solid #DDD8CC; }
   .spec-row:last-child { border-bottom:none; }
 
-  /* Nav link hover */
   .nav-link:hover { color:#C9973A; }
-
-  /* Filter active */
   .filter-btn.active { background:#1B3A5C; color:#fff; border-color:#1B3A5C; }
   .filter-btn:hover:not(.active) { border-color:#1B3A5C; color:#1B3A5C; }
-
-  /* Value card accent border */
   .value-card { border-left:3px solid #C9973A; }
-
-  /* Blueprint SVG bg */
   .blueprint-grid { position:absolute; inset:0; pointer-events:none; }
+
+  /* Lightbox */
+  #lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.93); align-items:center; justify-content:center; }
+  #lightbox.open { display:flex; }
+  #lightbox-img { max-height:85vh; max-width:88vw; object-fit:contain; border-radius:6px; display:block; }
+  #lightbox-prev, #lightbox-next { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.1); border:none; color:#fff; width:52px; height:52px; border-radius:50%; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s; }
+  #lightbox-prev:hover, #lightbox-next:hover { background:rgba(201,151,58,0.75); }
+  #lightbox-prev { left:24px; }
+  #lightbox-next { right:24px; }
+  #lightbox-close { position:absolute; top:18px; right:22px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; line-height:1; opacity:.6; transition:opacity .2s; }
+  #lightbox-close:hover { opacity:1; }
+  #lightbox-caption { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.5); font-size:13px; font-family:'Inter',sans-serif; letter-spacing:.06em; white-space:nowrap; }
+
+  /* Gallery thumbs */
+  .gallery-thumb { cursor:pointer; overflow:hidden; border-radius:8px; border:1.5px solid #DDD8CC; transition:border-color .2s, transform .15s; }
+  .gallery-thumb:hover { border-color:#C9973A; transform:scale(1.02); }
+  .gallery-thumb img { width:100%; height:150px; object-fit:cover; display:block; transition:transform .3s; }
+  .gallery-thumb:hover img { transform:scale(1.06); }
+  .gallery-thumb-label { display:flex; align-items:center; justify-content:center; gap:5px; padding:6px 0; background:#F0EBE0; color:#6B7280; font-size:11px; }
+
+  /* proj img placeholder for empty.jpg */
+  .proj-img-wrap { background:#E8E4DC; }
 </style>
 </head>
 <body class="font-sans bg-cream text-charcoal leading-relaxed">
 
-<!-- ======================================================
-     MAIN SITE
-     ====================================================== -->
+<!-- LIGHTBOX -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button id="lightbox-close" aria-label="Close" onclick="closeLightbox()">&#x2715;</button>
+  <button id="lightbox-prev" aria-label="Previous" onclick="lightboxNav(-1)">&#8249;</button>
+  <img id="lightbox-img" src="" alt="Project photo"/>
+  <button id="lightbox-next" aria-label="Next" onclick="lightboxNav(1)">&#8250;</button>
+  <span id="lightbox-caption"></span>
+</div>
+
+<!-- ======================================================  MAIN SITE  ====================================================== -->
 <div id="main-site">
 
 <!-- NAV -->
@@ -114,7 +131,6 @@ tailwind.config = {
     </svg>
   </div>
   <div class="max-w-[1200px] mx-auto px-[5%] py-[5%] grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10 w-full">
-    <!-- Left -->
     <div>
       <div class="hero-tag flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-5">Dubai, United Arab Emirates</div>
       <h1 class="font-serif hero-h1 font-bold text-navy leading-[1.12] mb-6 tracking-tight">Swift<br/>Atlantis<br/><em class="not-italic text-gold">Contracting</em></h1>
@@ -129,9 +145,8 @@ tailwind.config = {
         <div><div class="font-serif text-[2.2rem] font-bold text-navy leading-none">2022</div><div class="text-xs text-muted mt-1 tracking-wide">Established</div></div>
       </div>
     </div>
-    <!-- Right image -->
     <div class="relative hidden lg:block">
-      <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80" alt="Construction building Dubai" class="w-full h-[480px] object-cover rounded-md block"/>
+      <img src="https://swift-atlantis-system.vercel.app/Images/PROJECTS-COVER-PHOTO/1.png" alt="Royal Miramar Resort" class="w-full h-[480px] object-cover rounded-md block"/>
       <div class="absolute -bottom-5 -left-5 bg-white border border-border rounded-md px-5 py-4 shadow-[0_4px_20px_rgba(27,58,92,0.1)]">
         <div class="text-2xs font-semibold uppercase tracking-[0.1em] text-muted mb-1">Classification</div>
         <div class="font-serif text-[1.4rem] font-bold text-navy">G+1 Approved</div>
@@ -145,15 +160,13 @@ tailwind.config = {
 <section id="about" class="py-[90px] px-[5%] bg-white">
   <div class="max-w-[1200px] mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-      <!-- Image -->
       <div class="relative">
-        <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80" alt="Construction site" class="w-full h-[440px] object-cover rounded-md"/>
+        <img src="https://swift-atlantis-system.vercel.app/Images/PROJECTS-COVER-PHOTO/21.png" alt="MBR City Villas" class="w-full h-[440px] object-cover rounded-md"/>
         <div class="lg:absolute lg:-bottom-6 lg:-right-6 bg-navy text-white rounded-md px-7 py-6 min-w-[200px] mt-4 lg:mt-0">
           <div class="text-2xs tracking-[0.1em] uppercase opacity-60 mb-1.5">Licensed Since</div>
           <div class="font-serif text-[1.6rem] font-bold">Sept 2022</div>
         </div>
       </div>
-      <!-- Content -->
       <div>
         <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-3">About Us</div>
         <h2 class="font-serif section-title font-bold text-navy leading-[1.2] mb-4">Built on Trust,<br/>Delivered with Precision</h2>
@@ -177,16 +190,14 @@ tailwind.config = {
     <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-3">Our Foundation</div>
     <h2 class="font-serif section-title font-bold text-navy leading-[1.2] mb-4">Vision, Aims &amp; Values</h2>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start mt-12">
-      <!-- Left -->
       <div>
-        <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80" alt="Construction work" class="w-full h-[380px] object-cover rounded-md mb-8"/>
+        <img src="https://swift-atlantis-system.vercel.app/Images/PROJECTS-COVER-PHOTO/6.png" alt="Hotel Apartment Palm Jumeirah" class="w-full h-[380px] object-cover rounded-md mb-8"/>
         <div class="mb-8">
           <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-2">Aims</div>
           <h3 class="font-serif text-[1.25rem] font-semibold text-navy mb-2">Our Aims &amp; Message</h3>
           <p class="text-[15px] text-muted leading-[1.75]">To practice contracting activity in full accordance with local government laws and authority procedures, with complete commitment to safety, health instructions, and quality control to deliver facilities that conform to all project specifications.</p>
         </div>
       </div>
-      <!-- Right -->
       <div>
         <div class="mb-8">
           <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-2">Vision</div>
@@ -217,7 +228,6 @@ tailwind.config = {
     <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-3">What We Do</div>
     <h2 class="font-serif section-title font-bold text-navy leading-[1.2] mb-4">Our Services</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-      <!-- Card helper: bg-cream border rounded-md p-7 border-border hover:border-gold hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-default -->
       <div class="bg-cream border border-border rounded-md p-7 hover:border-gold hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(27,58,92,0.08)] transition-all duration-200 cursor-default">
         <div class="w-11 h-11 bg-navy rounded-md flex items-center justify-center mb-5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg></div>
         <h3 class="font-serif text-[1.1rem] font-semibold text-navy mb-2">General Contracting</h3>
@@ -252,29 +262,30 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- PROJECTS (full portfolio) -->
+<!-- PROJECTS -->
 <section id="projects" class="py-[90px] px-[5%] bg-sand">
   <div class="max-w-[1200px] mx-auto">
     <div class="flex justify-between items-end flex-wrap gap-4 mb-6">
       <div>
         <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-3">Portfolio</div>
-        <h2 class="font-serif section-title font-bold text-navy leading-[1.2]">Our Projects</h2>
+        <h2 class="font-serif section-title font-bold text-navy leading-[1.2]">Projects by Our Director</h2>
       </div>
       <div class="flex gap-2 flex-wrap" id="filter-bar">
-        <button class="filter-btn active text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border transition-all duration-200" data-filter="all">All Projects</button>
+        <button class="filter-btn active text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border transition-all duration-200" data-filter="all">All</button>
         <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Residential">Residential</button>
-        <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Commercial">Commercial</button>
-        <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Hospitality">Hospitality</button>
+        <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Resort">Resort</button>
+        <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Hotel">Hotel</button>
         <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Industrial">Industrial</button>
         <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Mixed Use">Mixed Use</button>
+        <button class="filter-btn text-[12px] font-medium px-4 py-1.5 rounded-full border-[1.5px] border-border text-muted transition-all duration-200" data-filter="Healthcare">Healthcare</button>
       </div>
     </div>
-    <p class="text-base text-muted leading-[1.75] max-w-[600px] mb-2">Click any project card to explore full details, specifications, milestones, and progress.</p>
+    <p class="text-base text-muted leading-[1.75] max-w-[600px] mb-2">Click any project card to explore full details, specifications, milestones, and gallery.</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8" id="projects-grid"></div>
   </div>
 </section>
 
-<!-- ONGOING PROJECTS -->
+<!-- ONGOING -->
 <section id="ongoing" class="py-[90px] px-[5%] bg-white">
   <div class="max-w-[1200px] mx-auto">
     <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-3">Live on Site</div>
@@ -290,7 +301,6 @@ tailwind.config = {
     <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-3">Leadership</div>
     <h2 class="font-serif section-title font-bold text-navy leading-[1.2] mb-4">Two Decades of Construction Mastery</h2>
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-20 items-start mt-12">
-      <!-- Sticky card -->
       <div>
         <div class="bg-white rounded-xl p-8 border border-border lg:sticky lg:top-[90px]">
           <div class="w-[72px] h-[72px] bg-navy rounded-full flex items-center justify-center font-serif text-[1.5rem] font-bold text-white mb-5">AN</div>
@@ -314,7 +324,6 @@ tailwind.config = {
           </div>
         </div>
       </div>
-      <!-- Bio -->
       <div>
         <p class="text-[15px] text-muted leading-[1.8] mb-4">Eng. Ahmed Nada graduated from Mansoura University, Faculty of Engineering, Department of Architectural Engineering in May 2002.</p>
         <p class="text-[15px] text-muted leading-[1.8] mb-4">With more than 20 years of extensive experience in the construction industry, he has developed a strong reputation for technical excellence, leadership, and successful project delivery across the UAE and Egypt.</p>
@@ -344,38 +353,36 @@ tailwind.config = {
 <!-- CONTACT -->
 <section id="contact" class="py-[90px] px-[5%] bg-navy">
   <div class="max-w-[1200px] mx-auto">
-    <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold-light mb-3" style="--tw-eyebrow-color:#E8B85A">Get in Touch</div>
+    <div class="eyebrow flex items-center gap-2 text-xxs font-semibold tracking-[0.15em] uppercase text-gold mb-3">Get in Touch</div>
     <h2 class="font-serif section-title font-bold text-white leading-[1.2] mb-4">Let's Build Together</h2>
     <p class="text-base text-white/65 leading-[1.75] max-w-[600px]">Ready to start your next construction project in Dubai or the UAE? Contact Swift Atlantis Contracting to discuss your requirements.</p>
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-20 mt-12">
-      <!-- Info -->
       <div class="text-white">
         <div class="mb-8">
-          <h4 class="text-xxs font-semibold tracking-[0.12em] uppercase text-gold-light mb-2">Office Address</h4>
+          <h4 class="text-xxs font-semibold tracking-[0.12em] uppercase text-gold mb-2">Office Address</h4>
           <p class="text-[15px] text-white/80 leading-[1.7]">P.O Box: 60054 Dubai<br/>Office 901, Crystal Tower, Business Bay<br/>Dubai, United Arab Emirates</p>
         </div>
         <div class="mb-8">
-          <h4 class="text-xxs font-semibold tracking-[0.12em] uppercase text-gold-light mb-2">Mobile</h4>
-          <p class="text-[15px]"><a href="tel:+97152150017" class="text-white/80 hover:text-gold-light no-underline transition-colors duration-200">+971 52-1500177</a></p>
+          <h4 class="text-xxs font-semibold tracking-[0.12em] uppercase text-gold mb-2">Mobile</h4>
+          <p class="text-[15px]"><a href="tel:+97152150017" class="text-white/80 hover:text-gold no-underline transition-colors duration-200">+971 52-1500177</a></p>
         </div>
         <div class="mb-8">
-          <h4 class="text-xxs font-semibold tracking-[0.12em] uppercase text-gold-light mb-2">Email</h4>
-          <p class="text-[15px]"><a href="mailto:ahmednada@swiftatlantis.ae" class="text-white/80 hover:text-gold-light no-underline transition-colors duration-200">ahmednada@swiftatlantis.ae</a></p>
+          <h4 class="text-xxs font-semibold tracking-[0.12em] uppercase text-gold mb-2">Email</h4>
+          <p class="text-[15px]"><a href="mailto:ahmednada@swiftatlantis.ae" class="text-white/80 hover:text-gold no-underline transition-colors duration-200">ahmednada@swiftatlantis.ae</a></p>
         </div>
       </div>
-      <!-- Form -->
       <div class="bg-white/5 border border-white/10 rounded-xl p-8">
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">First Name</label><input type="text" placeholder="Ahmed" class="w-full bg-white/8 border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold-light transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
-          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Last Name</label><input type="text" placeholder="Al Rashidi" class="w-full bg-white/8 border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold-light transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
+          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">First Name</label><input type="text" placeholder="Ahmed" class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
+          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Last Name</label><input type="text" placeholder="Al Rashidi" class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Email Address</label><input type="email" placeholder="ahmed@example.com" class="w-full bg-white/8 border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold-light transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
-          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Phone Number</label><input type="tel" placeholder="+971 50 000 0000" class="w-full bg-white/8 border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold-light transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
+          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Email Address</label><input type="email" placeholder="ahmed@example.com" class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
+          <div><label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Phone Number</label><input type="tel" placeholder="+971 50 000 0000" class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold transition-colors duration-200" style="background:rgba(255,255,255,0.08)"/></div>
         </div>
         <div class="mb-4">
           <label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Project Type</label>
-          <select class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white outline-none focus:border-gold-light transition-colors duration-200 appearance-none cursor-pointer" style="background:rgba(255,255,255,0.08)">
+          <select class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white outline-none focus:border-gold transition-colors duration-200 appearance-none cursor-pointer" style="background:rgba(255,255,255,0.08)">
             <option value="" style="background:#1B3A5C">Select project type...</option>
             <option style="background:#1B3A5C">Residential Building</option>
             <option style="background:#1B3A5C">Commercial Building</option>
@@ -387,7 +394,7 @@ tailwind.config = {
         </div>
         <div class="mb-4">
           <label class="block text-[12px] font-medium tracking-[0.06em] uppercase text-white/60 mb-1.5">Message</label>
-          <textarea placeholder="Tell us about your project requirements..." rows="4" class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold-light transition-colors duration-200 resize-y" style="background:rgba(255,255,255,0.08)"></textarea>
+          <textarea placeholder="Tell us about your project requirements..." rows="4" class="w-full border border-white/15 rounded px-3.5 py-2.5 text-[14px] text-white placeholder-white/30 outline-none focus:border-gold transition-colors duration-200 resize-y" style="background:rgba(255,255,255,0.08)"></textarea>
         </div>
         <button class="w-full bg-gold hover:bg-gold-light text-white border-none py-3.5 rounded text-[14px] font-semibold tracking-wide cursor-pointer transition-colors duration-200 font-sans">Submit Enquiry →</button>
       </div>
@@ -413,105 +420,108 @@ tailwind.config = {
 
 </div><!-- end #main-site -->
 
-<!-- ======================================================
-     PROJECT DETAIL PAGE (full-screen overlay)
-     ====================================================== -->
+<!-- ======================================================  DETAIL PAGE  ====================================================== -->
 <div id="detail-page" class="hidden fixed inset-0 z-[200] bg-cream overflow-y-auto">
-  <!-- Detail Nav -->
   <nav class="sticky top-0 bg-cream/97 backdrop-blur-sm border-b border-border px-[5%] z-10">
     <div class="max-w-[1100px] mx-auto flex items-center justify-between h-16">
       <button onclick="closeDetail()" class="flex items-center gap-2 text-[14px] font-medium text-navy hover:text-gold cursor-pointer bg-transparent border-none transition-colors duration-200 group">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:-translate-x-0.5 transition-transform duration-200"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Back to All Projects
       </button>
       <div class="font-serif text-[13px] font-bold text-navy">Swift Atlantis Contracting</div>
     </div>
   </nav>
-  <!-- Detail Body -->
   <div class="max-w-[1100px] mx-auto px-[5%] pt-12 pb-24" id="detail-body"></div>
 </div>
 
 <script>
+const BASE = 'https://swift-atlantis-system.vercel.app';
+const FALLBACK = 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=900&q=80';
+
 const PROJECTS = [
-  {id:1,title:"Residential Villa Complex",type:"Residential",location:"Al Barsha South, Dubai, UAE",status:"in-progress",statusLabel:"In Progress",floors:"G+1 + Roof Terrace",started:"Q1 2024",target:"Q4 2025",progress:62,value:"AED 4.2M",area:"1,840 m²",client:"Private Developer",
-    image:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&q=70","https://images.unsplash.com/photo-1585128792020-803d29415281?w=400&q=70","https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=400&q=70"],
-    description:"A premium G+1 residential villa complex featuring contemporary architectural design, roof terraces, and landscaped courtyards. The development delivers six luxury villas with private pools and smart home integration, targeting high-net-worth buyers in one of Dubai's most sought-after residential districts.",
-    scope:"Full main contracting scope including substructure, superstructure, MEP coordination, finishing, landscaping, and handover.",
-    milestones:[{label:"Site mobilisation & excavation",date:"Jan 2024",done:true},{label:"Foundation & ground slab",date:"Mar 2024",done:true},{label:"Structural frame (G+1)",date:"Jul 2024",done:true},{label:"Blockwork & MEP rough-in",date:"Nov 2024",done:true},{label:"External cladding & windows",date:"Feb 2025",done:true},{label:"Internal finishing & tiling",date:"May 2025",active:true},{label:"Landscaping & pool installation",date:"Aug 2025",done:false},{label:"Final inspection & BCC",date:"Q4 2025",done:false}]},
-  {id:2,title:"Commercial Office Building",type:"Commercial",location:"Business Bay, Dubai, UAE",status:"structural",statusLabel:"Structural Phase",floors:"B+G+12 Floors",started:"Q3 2024",target:"Q2 2026",progress:30,value:"AED 38M",area:"14,200 m²",client:"Corporate Developer",
-    image:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=70","https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=400&q=70","https://images.unsplash.com/photo-1516216628859-9bccecab13ca?w=400&q=70"],
-    description:"A flagship commercial tower in Business Bay, Dubai's premier CBD. The B+G+12 development will house Grade-A office suites, retail podium, and a rooftop hospitality deck. Designed to achieve LEED Gold certification, the building incorporates high-performance glazing, energy-efficient MEP systems, and state-of-the-art smart building technology.",
-    scope:"Main contracting for substructure, basement retention, tower superstructure, curtain wall, MEP systems, fit-out coordination, and final commissioning.",
-    milestones:[{label:"Enabling works & shoring",date:"Aug 2024",done:true},{label:"Basement excavation B1–B2",date:"Oct 2024",done:true},{label:"Basement slab & car park structure",date:"Jan 2025",done:true},{label:"Ground floor & podium structure",date:"Mar 2025",done:true},{label:"Tower floors 1–6 structure",date:"Jun 2025",active:true},{label:"Tower floors 7–12 structure",date:"Sep 2025",done:false},{label:"Curtain wall & façade",date:"Jan 2026",done:false},{label:"MEP, fit-out & commissioning",date:"Q2 2026",done:false}]},
-  {id:3,title:"G+1 Residential Compound",type:"Residential",location:"Al Quoz, Dubai, UAE",status:"finishing",statusLabel:"Finishing Phase",floors:"G+1 + Landscaped Podium",started:"Q4 2023",target:"Q3 2025",progress:88,value:"AED 7.6M",area:"3,100 m²",client:"Private Developer",
-    image:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=70","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=400&q=70","https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=70"],
-    description:"A boutique G+1 residential compound featuring twelve apartments arranged around a central landscaped podium garden. The project delivers high-quality residential units with premium finishes, communal amenities, and secure parking — positioned to attract long-term professional tenants in Al Quoz's growing residential corridor.",
-    scope:"Full contracting including structural works, MEP, tiling, joinery, external landscaping, podium waterproofing, and Dubai Municipality approvals for BCC.",
-    milestones:[{label:"Site preparation & excavation",date:"Oct 2023",done:true},{label:"Foundation & raft slab",date:"Dec 2023",done:true},{label:"G+1 structural frame",date:"Mar 2024",done:true},{label:"Blockwork, plastering & MEP",date:"Jul 2024",done:true},{label:"External render & waterproofing",date:"Oct 2024",done:true},{label:"Internal finishing & tiling",date:"Feb 2025",done:true},{label:"Landscaping & podium works",date:"Jun 2025",active:true},{label:"Handover & BCC",date:"Q3 2025",done:false}]},
-  {id:4,title:"Retail + Residential Development",type:"Mixed Use",location:"Jumeirah Village Circle, Dubai",status:"in-progress",statusLabel:"In Progress",floors:"B+G+6 Floors",started:"Q1 2025",target:"Q1 2027",progress:18,value:"AED 52M",area:"9,800 m²",client:"Real Estate Developer",
-    image:"https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1542621334-a254cf47733d?w=400&q=70","https://images.unsplash.com/photo-1519999482648-25049ddd37b1?w=400&q=70","https://images.unsplash.com/photo-1517935706615-2717063c2225?w=400&q=70"],
-    description:"A vibrant mixed-use development in Jumeirah Village Circle combining ground-floor retail and F&B with six floors of residential apartments. The project introduces 84 residential units and 14 retail units, addressing JVC's strong demand for integrated live-work-shop destinations. The design features a landscaped rooftop deck and double-height retail atrium.",
-    scope:"Full main contractor scope: basement retention, podium construction, tower frame, MEP, retail shell-and-core, residential fit-out, landscaping, and authority approvals.",
-    milestones:[{label:"Site mobilisation & shoring",date:"Jan 2025",done:true},{label:"Basement excavation",date:"Mar 2025",done:true},{label:"Basement slab B1",date:"May 2025",done:true},{label:"Ground floor structure",date:"Jul 2025",active:true},{label:"Floors 1–3 superstructure",date:"Nov 2025",done:false},{label:"Floors 4–6 superstructure",date:"Mar 2026",done:false},{label:"Façade & MEP",date:"Aug 2026",done:false},{label:"Finishing & handover",date:"Q1 2027",done:false}]},
-  {id:5,title:"Luxury Hotel Apartments",type:"Hospitality",location:"Downtown Dubai, UAE",status:"foundation",statusLabel:"Foundation Phase",floors:"B+G+18 Floors",started:"Q2 2025",target:"Q4 2027",progress:12,value:"AED 120M",area:"22,400 m²",client:"Hospitality Investment Group",
-    image:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400&q=70","https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&q=70","https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=400&q=70"],
-    description:"The most prestigious project in Swift Atlantis's current portfolio — a landmark 18-storey luxury hotel apartment tower in the heart of Downtown Dubai. Comprising 210 fully-furnished serviced apartments with panoramic Burj Khalifa views, sky lounge, spa, and rooftop pool, the development targets international hospitality operators under a long-term management agreement.",
-    scope:"Main contractor for deep basement, raft foundation, tower superstructure, premium curtain wall system, MEP, FF&E coordination, hotel-grade finishing, and full authority approvals.",
-    milestones:[{label:"Enabling works & piling",date:"Apr 2025",done:true},{label:"Basement excavation (B1–B2)",date:"Jun 2025",done:true},{label:"Raft foundation pour",date:"Aug 2025",active:true},{label:"Basement structure B1–B2",date:"Nov 2025",done:false},{label:"Podium & GF structure",date:"Feb 2026",done:false},{label:"Tower floors 1–10",date:"Sep 2026",done:false},{label:"Tower floors 11–18 & façade",date:"Apr 2027",done:false},{label:"Fit-out, commissioning & handover",date:"Q4 2027",done:false}]},
-  {id:6,title:"Industrial Warehouse Complex",type:"Industrial",location:"Al Quoz Industrial, Dubai, UAE",status:"in-progress",statusLabel:"In Progress",floors:"G+Mezzanine",started:"Q3 2025",target:"Q1 2026",progress:70,value:"AED 8.9M",area:"5,600 m²",client:"Logistics Company",
-    image:"https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=70","https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&q=70","https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=400&q=70"],
-    description:"A purpose-built industrial warehouse complex designed for logistics, storage, and light manufacturing operations. The development features six interconnected units with 8m clear heights, heavy-duty floor slabs rated for 5-tonne forklift loads, mezzanine office levels, large roller-shutter doors, and a full truck manoeuvring yard.",
-    scope:"Full main contracting including steel structure, concrete apron, mezzanine construction, industrial MEP, roller shutters, office fit-out, and yard surfacing.",
-    milestones:[{label:"Site clearance & earthworks",date:"Jul 2025",done:true},{label:"Ground beam & floor slab",date:"Aug 2025",done:true},{label:"Steel portal frame erection",date:"Sep 2025",done:true},{label:"Roof cladding & wall panels",date:"Oct 2025",done:true},{label:"Mezzanine structure & stairs",date:"Nov 2025",done:true},{label:"MEP installation & roller shutters",date:"Dec 2025",active:true},{label:"Yard surfacing & drainage",date:"Jan 2026",done:false},{label:"Final inspection & handover",date:"Q1 2026",done:false}]},
-  {id:7,title:"Waterfront Villa — Palm Jumeirah",type:"Residential",location:"Palm Jumeirah, Dubai, UAE",status:"completed",statusLabel:"Completed",floors:"G+1 + Basement",started:"Q2 2023",target:"Q1 2024",progress:100,value:"AED 6.8M",area:"720 m²",client:"Private Owner",
-    image:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=70","https://images.unsplash.com/photo-1600047509782-20d39509f26d?w=400&q=70","https://images.unsplash.com/photo-1600047510353-739de86e574c?w=400&q=70"],
-    description:"A bespoke waterfront villa on the exclusive Palm Jumeirah frond, delivered for a private owner. The project showcases Swift Atlantis's high-end residential capability — featuring a private beach terrace, infinity-edge pool with sea views, basement garage and cinema room, and ultra-premium Italian marble and joinery finishes throughout all 720m² of living space.",
-    scope:"Full main contracting from basement excavation and structural works through premium finishing, bespoke joinery, smart home integration, pool construction, and landscaping.",
-    milestones:[{label:"Basement excavation & retention",date:"May 2023",done:true},{label:"Foundation & basement structure",date:"Jul 2023",done:true},{label:"G+1 structural frame",date:"Sep 2023",done:true},{label:"MEP rough-in & enclosure",date:"Nov 2023",done:true},{label:"Premium finishing & joinery",date:"Jan 2024",done:true},{label:"Pool, landscaping & terrace",date:"Feb 2024",done:true},{label:"Smart home commissioning",date:"Mar 2024",done:true},{label:"Handover & BCC issued",date:"Mar 2024",done:true}]},
-  {id:8,title:"Medical Centre — Al Nahda",type:"Commercial",location:"Al Nahda, Dubai, UAE",status:"completed",statusLabel:"Completed",floors:"G+3",started:"Q1 2023",target:"Q4 2023",progress:100,value:"AED 14.5M",area:"4,200 m²",client:"Healthcare Operator",
-    image:"https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400&q=70","https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=400&q=70","https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&q=70"],
-    description:"A purpose-built medical centre completed for a leading UAE healthcare operator, consolidating specialist outpatient services, diagnostic imaging, day surgery suites, and administrative facilities across four floors. The project demanded strict compliance with Dubai Health Authority (DHA) facility standards, specialist MEP infrastructure for medical gases and infection control, and phased handover.",
-    scope:"Full main contracting including structural works, specialist MEP for medical applications, DHA-compliant finishing, fire suppression, and authority approvals.",
-    milestones:[{label:"Structural frame G+3",date:"Apr 2023",done:true},{label:"Medical MEP rough-in",date:"Jun 2023",done:true},{label:"Internal partitioning & MEP",date:"Aug 2023",done:true},{label:"DHA-specification finishing",date:"Oct 2023",done:true},{label:"Medical gas commissioning",date:"Nov 2023",done:true},{label:"DHA inspection & approvals",date:"Nov 2023",done:true},{label:"Handover Phase 1 (G+1)",date:"Dec 2023",done:true},{label:"Full handover & BCC issued",date:"Dec 2023",done:true}]},
-  {id:9,title:"Factory & Showroom — JAFZA",type:"Industrial",location:"Jebel Ali Free Zone, Dubai",status:"completed",statusLabel:"Completed",floors:"G+Mezzanine + Showroom",started:"Q3 2022",target:"Q2 2023",progress:100,value:"AED 11.2M",area:"7,800 m²",client:"Manufacturing Company",
-    image:"https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=900&q=80",
-    gallery:["https://images.unsplash.com/photo-1553413077-190dd305871c?w=400&q=70","https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=70","https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&q=70"],
-    description:"Swift Atlantis's inaugural major project following incorporation — a combined light manufacturing factory and branded showroom facility within the Jebel Ali Free Zone. The development includes a 6,200m² production hall with 10m clear height and 10-tonne overhead crane rails, plus a 1,600m² double-height showroom with premium retail finish and dedicated customer parking.",
-    scope:"Full turnkey main contracting from earthworks, steel structure, concrete floor slab, MEP, crane beam installation, showroom fit-out, and all JAFZA authority approvals.",
-    milestones:[{label:"JAFZA approvals & site setup",date:"Aug 2022",done:true},{label:"Ground slab — factory hall",date:"Oct 2022",done:true},{label:"Steel portal frame & roofing",date:"Dec 2022",done:true},{label:"Overhead crane beam installation",date:"Feb 2023",done:true},{label:"Showroom structure & cladding",date:"Mar 2023",done:true},{label:"MEP & showroom fit-out",date:"Apr 2023",done:true},{label:"JAFZA final inspection",date:"May 2023",done:true},{label:"Handover & occupancy permit",date:"Jun 2023",done:true}]}
+  {id:1,  title:"Royal Miramar Resort",           type:"Resort",      location:"Al Aqah, Al Fujairah, UAE",                       status:"completed",   statusLabel:"Completed",   floors:"Main + Staff Building + Club House", client:"Private Developer",       description:"A prestigious 316-room luxury resort development in Al Aqah, Al Fujairah — comprising the main building, staff building, and club house. This landmark hospitality project demanded meticulous coordination of structural, MEP, and finishing trades to deliver a world-class guest experience.", scope:"Full main contracting including structural works, MEP coordination, interior fit-out, and landscaping across all three buildings.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/1.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/1.png']},
+  {id:2,  title:"Damas Hotel",                    type:"Hotel",       location:"Dibba Al Fujairah, UAE",                          status:"completed",   statusLabel:"Completed",   floors:"B+G+7",                             client:"Private Developer",       description:"A B+G+7 floor hotel development in Dibba Al Fujairah — delivering a modern hospitality structure with full structural, MEP, and fit-out works completed to municipality standards.", scope:"Full structural, MEP, and fit-out works for a seven-floor hotel development.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/2.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/2.png']},
+  {id:3,  title:"2 Residential Buildings",         type:"Residential", location:"Muwaileh Commercial, Sharjah, UAE",               status:"completed",   statusLabel:"Completed",   floors:"B+G+7 (×2 Buildings)",            client:"Private Developer",       description:"Twin B+G+7 residential towers in Muwaileh Commercial, Sharjah — a dual-building residential project executed concurrently with coordinated scheduling to optimize delivery timelines.", scope:"Concurrent construction of two B+G+7 residential buildings including structural, MEP, and full fit-out.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/3.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/3.png']},
+  {id:4,  title:"Residential Building",            type:"Residential", location:"Al Khan, Sharjah, UAE",                          status:"completed",   statusLabel:"Completed",   floors:"G+5P+15",                          client:"Private Developer",       description:"A high-rise residential tower (G+5P+15 typical floors) in Al Khan, Sharjah — a landmark multi-storey development delivering premium residential units with full structural and fit-out works.", scope:"Full main contracting from substructure through to finishing works for a 15-floor residential tower.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/4.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/4.png']},
+  {id:5,  title:"2 Residential Buildings",         type:"Residential", location:"Jesco, Sharjah, UAE",                            status:"completed",   statusLabel:"Completed",   floors:"G+1 (×2 Buildings)",              client:"Private Developer",       description:"Two compact G+1 residential buildings in Jesco, Sharjah — a dual-building residential project efficiently delivered within a tight footprint.", scope:"Structural, MEP, and finishing works for two G+1 residential buildings.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/5.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/5.png']},
+  {id:6,  title:"Hotel Apartment – Royal Bay",     type:"Hotel",       location:"Palm Jumeirah, Dubai, UAE",                      status:"completed",   statusLabel:"Completed",   floors:"B+G+8",                            client:"Royal Bay",               description:"A B+G+8 hotel apartment development on the iconic Palm Jumeirah — one of Dubai's most prestigious addresses, delivered with premium finishing standards under the Royal Bay brand.", scope:"Full main contracting including basement, superstructure, MEP, and premium hotel-grade finishing.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/6.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/6.png']},
+  {id:7,  title:"2 Residential Buildings",         type:"Residential", location:"Nadd Al Hamar, Dubai, UAE",                     status:"completed",   statusLabel:"Completed",   floors:"B+G+7 (×2 Buildings)",            client:"Private Developer",       description:"Twin B+G+7 residential buildings in Nadd Al Hamar, Dubai — a concurrent dual-building delivery with coordinated structural and MEP works.", scope:"Full structural, MEP, and finishing for two concurrent B+G+7 residential buildings.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/7.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/7.png']},
+  {id:8,  title:"Gold Factory",                   type:"Industrial",  location:"Jabel Ali, Dubai, UAE",                          status:"completed",   statusLabel:"Completed",   floors:"G+2",                              client:"Manufacturing Company",   description:"A G+2 gold manufacturing facility in Jabel Ali, Dubai — a specialist industrial project combining large-span factory floor construction with premium office and operational fit-out.", scope:"Structural works, industrial MEP, factory floor slab, and fit-out for a specialist gold manufacturing facility.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/8.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/8.png']},
+  {id:9,  title:"95 Townhouses + Retail Mall",    type:"Mixed Use",   location:"Jumeirah Golf Estates, Dubai, UAE",              status:"completed",   statusLabel:"Completed",   floors:"95 Townhouses + Retail Mall",     client:"Developer",               description:"A landmark mixed-use development comprising 95 luxury townhouses alongside a retail mall at Jumeirah Golf Estates — combining residential excellence with vibrant community retail.", scope:"Full construction of 95 townhouse units and an integrated retail mall including structural, MEP, landscaping, and finishing.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/9.jpeg',  gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/9.jpeg']},
+  {id:10, title:"Residential Building",            type:"Residential", location:"Studio City, Dubai, UAE",                       status:"completed",   statusLabel:"Completed",   floors:"B+G+8",                            client:"Private Developer",       description:"A B+G+8 residential building in Studio City, Dubai — a modern mid-rise development featuring premium finishes and full MEP coordination.", scope:"Full main contracting from basement to roof including MEP, finishing, and authority handover.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/10.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/10.jpeg']},
+  {id:11, title:"11 Residential Buildings",        type:"Residential", location:"Meydan One, Nadd Al Sheba, Dubai, UAE",          status:"completed",   statusLabel:"Completed",   floors:"2B+G+7 to 2B+G+10 (×11 Buildings)", client:"Developer",            description:"An ambitious 11-building residential complex ranging from 2B+G+7 to 2B+G+10 floors in the prestigious Meydan One community — a major multi-building development requiring highly coordinated scheduling and delivery.", scope:"Full structural and MEP works across 11 residential towers delivered concurrently.", image:FALLBACK, gallery:[FALLBACK]},
+  {id:12, title:"Residential Building",            type:"Residential", location:"Jeddah, Saudi Arabia",                          status:"completed",   statusLabel:"Completed",   floors:"G+4+Roof",                         client:"Private Developer",       description:"A G+4 floors + roof residential building in Jeddah, KSA — designed and constructed to Saudi municipality standards with full structural, MEP, and architectural fit-out works.", scope:"Full structural, MEP, and finishing works to KSA municipality standards.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/12.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/12.jpeg']},
+  {id:13, title:"Al Loloaa Hospital",             type:"Healthcare",  location:"Wadi Al Natron, Cairo–Alexandria Road, Egypt",   status:"completed",   statusLabel:"Completed",   floors:"G+Mezzanine+5",                    client:"Healthcare Operator",     description:"A G+Mezzanine+5 floor hospital complex in Wadi Al Natron on the Cairo–Alexandria Desert Road — demanding the highest standards of structural integrity, MEP coordination, and specialist medical-grade fit-out.", scope:"Full main contracting including structural works, medical-grade MEP, specialist finishing, and all authority approvals.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/13.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/13.jpeg']},
+  {id:14, title:"Residential Building Design",    type:"Residential", location:"6 October City, Cairo–Ismailia Road, Egypt",     status:"completed",   statusLabel:"Completed",   floors:"B+G+7",                            client:"6 October Association",   description:"A B+G+7 residential building design for the 6 October Association on the Cairo–Ismailia Desert Road — a full architectural design and supervision project.", scope:"Full architectural design, structural design, and construction supervision.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/14.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/14.jpeg']},
+  {id:15, title:"Residential Building Design",    type:"Residential", location:"Mansoura City, Egypt",                           status:"completed",   statusLabel:"Completed",   floors:"B+G+11",                           client:"Private Developer",       description:"Front elevation design for a B+G+11 residential tower in Mansoura City, Egypt — delivering a striking contemporary façade for a prominent urban development.", scope:"Architectural façade design and structural supervision for a B+G+11 residential tower.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/15.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/15.jpeg']},
+  {id:16, title:"Private Villa",                  type:"Residential", location:"New Cairo, Egypt",                               status:"completed",   statusLabel:"Completed",   floors:"B+G+2+Roof",                       client:"Private Owner",           description:"A B+G+2+roof private villa in New Cairo, Egypt — a fully custom residential project executed with premium architectural finishes and detailed structural works.", scope:"Full structural and finishing works for a custom private villa.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/16.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/16.jpeg']},
+  {id:17, title:"Villa Ain Al Sokhna",            type:"Residential", location:"Ain Al Sokhna, Egypt",                           status:"completed",   statusLabel:"Completed",   floors:"G+1+Roof",                         client:"Private Owner",           description:"A G+1+roof villa in Ain Al Sokhna, Egypt — a luxury beachside residential project featuring resort-style landscaping and premium construction finishes.", scope:"Full construction of a beachside villa including structural works, premium finishes, and resort-style landscaping.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/17.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/17.jpeg']},
+  {id:18, title:"Villa Design",                   type:"Residential", location:"Tahta, Suhaj, Egypt",                            status:"completed",   statusLabel:"Completed",   floors:"G+3+Roof",                         client:"Private Owner",           description:"A G+3+roof villa design in Tahta, Suhaj, Egypt — an architectural design project delivering multiple façade options to an elegant classical aesthetic.", scope:"Architectural design with multiple façade options for a G+3+roof private villa.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/18.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/18.jpeg']},
+  {id:19, title:"Jaz Belvedere Resort",           type:"Resort",      location:"Sharm El Sheikh, South Sinai, Egypt",            status:"completed",   statusLabel:"Completed",   floors:"Luxury Resort Complex",            client:"Travco Group",            description:"A luxury resort development in Sharm El Sheikh under Travco Group — one of Egypt's leading hospitality groups. This high-profile project reflects our capability in delivering premium resort construction to international standards.", scope:"Full resort construction including structural works, MEP, landscaping, and luxury finishing under Travco Group.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/19.jpeg', gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/19.jpeg']},
+  {id:20, title:"Samaya & Lamaya Resorts",        type:"Resort",      location:"Marsa Alam, Red Sea, Egypt",                     status:"completed",   statusLabel:"Completed",   floors:"Twin Resort Complexes",            client:"Travco Group",            description:"Twin luxury resort developments — Samaya and Lamaya — under Travco Group in Marsa Alam, Red Sea. A dual-resort project showcasing extensive experience in large-scale hospitality construction.", scope:"Full construction of two luxury resort complexes on the Red Sea coast under Travco Group.", image:FALLBACK, gallery:[FALLBACK]},
+  {id:21, title:"10 Villas – MBR City District One", type:"Residential", location:"Mohamed Bin Rashid City, District One, Dubai, UAE", status:"completed", statusLabel:"Completed", floors:"G+1 (×10 Villas)",            client:"Private Developer",       description:"Construction of 10 G+1 luxury villas at Mohamed Bin Rashid Al Maktoum City, District One, Phase 3B — one of Dubai's most prestigious villa communities, established by Swift Atlantis Contracting LLC.", scope:"Full construction of 10 luxury G+1 villas including structural works, premium finishing, landscaping, and handover.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/21.png',  gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/21.png']},
+  {id:22, title:"Residential Villa – Jabal Ali Hills", type:"Residential", location:"Jabal Ali Hills, Saih Shuaib 1, Dubai, UAE", status:"in-progress", statusLabel:"In Progress", floors:"B+G+1",                         client:"Private Owner",           description:"A B+G+1 luxury residential villa at Jabal Ali Hills, Saih Shuaib 1 — a contemporary high-spec private residence currently under construction by Swift Atlantis Contracting LLC.", scope:"Full construction from basement excavation through superstructure, premium finishing, and landscaping.", image:FALLBACK, gallery:[FALLBACK]},
+  {id:23, title:"28 Villas – AlQutaina Compound",  type:"Residential", location:"AlQutaina Governmental Compound, Sharjah, UAE",  status:"in-progress", statusLabel:"In Progress", floors:"G+1 (×28 Villas)",             client:"Sharjah Housing Programme", description:"Establishment of 28 G+1 villas within the AlQutaina Governmental Residential Compound in Sharjah (366 Villas total), under the Sharjah Housing Programme. Consultant: Sharjah Housing Programme.", scope:"Full construction of 28 G+1 government residential villas within a large compound development.", image:FALLBACK, gallery:[FALLBACK]},
+  {id:24, title:"96 Villas – Damac Lagoons",       type:"Residential", location:"Damac Lagoons, Dubai, UAE",                      status:"in-progress", statusLabel:"In Progress", floors:"96 Villas",                        client:"Damac Properties",        description:"Construction of 96 villas at Damac Lagoons, Dubai — an ongoing high-profile villa community project under Consultant Jouzy Consulting Engineers, currently under construction by Swift Atlantis Contracting LLC.", scope:"Full construction of 96 residential villas at Damac Lagoons including structural works, MEP, and finishing.", image:FALLBACK, gallery:[FALLBACK]},
 ];
 
-function cardHTML(p, showProgress) {
-  const statusClass = 'badge-'+p.status;
-  const progressBar = showProgress ? `
-    <div class="mt-3">
-      <div class="bg-border rounded-full h-1.5 overflow-hidden">
-        <div class="h-full rounded-full bg-gold transition-all duration-500" style="width:${p.progress}%"></div>
-      </div>
-      <div class="flex justify-between text-[11px] text-muted mt-1">
-        <span>${p.progress}% complete</span><span>Target: ${p.target}</span>
-      </div>
-    </div>` : '';
+const ONGOING_STATUSES = ['in-progress','structural','finishing','foundation'];
+
+/* ── Lightbox ── */
+let _lbImages = [], _lbIndex = 0;
+function openLightbox(images, index) {
+  _lbImages = images; _lbIndex = index;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  if (!document.getElementById('detail-page').classList.contains('hidden')) return;
+  document.body.style.overflow = '';
+}
+function lightboxNav(dir) {
+  _lbIndex = (_lbIndex + dir + _lbImages.length) % _lbImages.length;
+  renderLightbox();
+}
+function renderLightbox() {
+  document.getElementById('lightbox-img').src = _lbImages[_lbIndex];
+  const single = _lbImages.length < 2;
+  document.getElementById('lightbox-prev').style.display = single ? 'none' : 'flex';
+  document.getElementById('lightbox-next').style.display = single ? 'none' : 'flex';
+  document.getElementById('lightbox-caption').textContent = single ? '' : (_lbIndex + 1) + ' / ' + _lbImages.length;
+}
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'Escape')     { closeLightbox(); return; }
+});
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
+
+/* ── Card ── */
+function cardHTML(p) {
+  const sc = 'badge-' + p.status;
   return `
-    <div class="proj-card bg-white rounded-xl border border-border overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_16px_50px_rgba(27,58,92,0.12)] hover:border-gold" onclick="openDetail(${p.id})" tabindex="0" role="button" aria-label="View ${p.title} details" onkeydown="if(event.key==='Enter')openDetail(${p.id})">
-      <div class="relative overflow-hidden">
-        <img src="${p.image}" alt="${p.title}" loading="lazy" class="w-full h-[200px] object-cover block transition-transform duration-300"/>
-        <div class="proj-overlay absolute inset-0 opacity-0 transition-opacity duration-200" style="background:linear-gradient(to top,rgba(27,58,92,0.6) 0%,transparent 50%)"></div>
-        <div class="proj-arrow absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center opacity-0 translate-x-1 translate-y-1 transition-all duration-200" style="background:#C9973A">
+    <div class="proj-card bg-white rounded-xl border border-border overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_16px_50px_rgba(27,58,92,0.12)] hover:border-gold"
+         onclick="openDetail(${p.id})" tabindex="0" role="button" aria-label="View ${p.title} details"
+         onkeydown="if(event.key==='Enter')openDetail(${p.id})">
+      <div class="proj-img-wrap relative overflow-hidden">
+        <img src="${p.image}" alt="${p.title}" loading="lazy"
+             class="w-full h-[200px] object-cover block transition-transform duration-300"
+             onerror="this.src='${FALLBACK}'"/>
+        <div class="proj-overlay absolute inset-0 opacity-0 transition-opacity duration-200"
+             style="background:linear-gradient(to top,rgba(27,58,92,0.6) 0%,transparent 50%)"></div>
+        <div class="proj-arrow absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center opacity-0 translate-x-1 translate-y-1 transition-all duration-200"
+             style="background:#C9973A">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </div>
       <div class="p-5">
         <div class="flex gap-2 mb-2.5 flex-wrap">
-          <span class="text-[10px] font-semibold tracking-[0.08em] uppercase px-2.5 py-1 rounded ${statusClass}">${p.statusLabel}</span>
+          <span class="text-[10px] font-semibold tracking-[0.08em] uppercase px-2.5 py-1 rounded ${sc}">${p.statusLabel}</span>
           <span class="text-[10px] font-medium tracking-[0.06em] uppercase px-2.5 py-1 rounded bg-navy text-white opacity-85">${p.type}</span>
         </div>
         <h3 class="font-serif text-[1.05rem] font-semibold text-navy leading-[1.3] mb-1.5">${p.title}</h3>
@@ -520,59 +530,57 @@ function cardHTML(p, showProgress) {
           ${p.location}
         </div>
         <div class="flex justify-between text-[11px] text-muted border-t border-border pt-2.5 mt-2.5">
-          <span>${p.floors}</span><span>${p.started} → ${p.target}</span>
+          <span>${p.floors}</span><span>${p.client}</span>
         </div>
-        ${progressBar}
       </div>
     </div>`;
 }
 
-let activeFilter = 'all';
-function renderProjects(filter) {
-  const filtered = filter === 'all' ? PROJECTS : PROJECTS.filter(p => p.type === filter);
-  document.getElementById('projects-grid').innerHTML = filtered.map(p => cardHTML(p, false)).join('');
-}
-
+/* ── Filter ── */
 document.getElementById('filter-bar').addEventListener('click', function(e) {
   const btn = e.target.closest('.filter-btn');
   if (!btn) return;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  activeFilter = btn.dataset.filter;
-  renderProjects(activeFilter);
+  const f = btn.dataset.filter;
+  const list = f === 'all' ? PROJECTS : PROJECTS.filter(p => p.type === f);
+  document.getElementById('projects-grid').innerHTML = list.map(cardHTML).join('');
 });
+document.getElementById('projects-grid').innerHTML = PROJECTS.map(cardHTML).join('');
 
-renderProjects('all');
+/* ── Ongoing ── */
+document.getElementById('ongoing-grid').innerHTML =
+  PROJECTS.filter(p => ONGOING_STATUSES.includes(p.status)).map(cardHTML).join('');
 
-(function renderOngoing() {
-  const ONGOING = ['in-progress','structural','finishing','foundation'];
-  const ongoing = PROJECTS.filter(p => ONGOING.includes(p.status));
-  document.getElementById('ongoing-grid').innerHTML = ongoing.map(p => cardHTML(p, true)).join('');
-})();
-
+/* ── Detail ── */
 function openDetail(id) {
   const p = PROJECTS.find(x => x.id === id);
   if (!p) return;
-  const statusClass = 'badge-'+p.status;
-  const msHTML = p.milestones.map(m => {
-    const dotClass = m.done ? 'bg-gold' : m.active ? 'bg-[#4A8FA8] shadow-[0_0_0_3px_rgba(74,143,168,0.2)]' : 'bg-border';
-    return `<li class="flex gap-3 mb-4 items-start">
-      <div class="w-3 h-3 rounded-full ${dotClass} shrink-0 mt-1"></div>
-      <div>
-        <div class="text-[14px] text-charcoal">${m.label}</div>
-        <div class="text-[12px] text-muted">${m.date}</div>
+  const sc = 'badge-' + p.status;
+
+  const thumbsHTML = p.gallery.map((src, i) => `
+    <div class="gallery-thumb" onclick="openLightbox(window._detailGallery, ${i})" title="View full size">
+      <img src="${src}" alt="Project photo ${i+1}" loading="lazy" onerror="this.src='${FALLBACK}'"/>
+      <div class="gallery-thumb-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Photo ${i+1}
       </div>
-    </li>`;
-  }).join('');
-  const galleryHTML = p.gallery.map(g => `<img src="${g}" alt="Project photo" loading="lazy" class="w-full h-[140px] object-cover rounded-md border border-border"/>`).join('');
+    </div>`).join('');
 
   document.getElementById('detail-body').innerHTML = `
-    <img src="${p.image}" alt="${p.title}" class="w-full h-[420px] object-cover rounded-xl block mb-10"/>
+    <!-- Hero -->
+    <div class="gallery-thumb mb-10 rounded-xl overflow-hidden" onclick="openLightbox(window._detailGallery, 0)" style="cursor:pointer;">
+      <img src="${p.image}" alt="${p.title}" class="w-full h-[420px] object-cover block" onerror="this.src='${FALLBACK}'"/>
+      <div class="flex items-center gap-2 py-2 px-4 text-white/60 text-[12px]" style="background:rgba(27,58,92,0.88);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Click to open gallery · ${p.gallery.length} photo${p.gallery.length > 1 ? 's' : ''}
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-12 items-start">
-      <!-- Main -->
       <div>
         <div class="flex gap-2 mb-4 flex-wrap">
-          <span class="text-[10px] font-semibold tracking-[0.08em] uppercase px-2.5 py-1 rounded ${statusClass}">${p.statusLabel}</span>
+          <span class="text-[10px] font-semibold tracking-[0.08em] uppercase px-2.5 py-1 rounded ${sc}">${p.statusLabel}</span>
           <span class="text-[10px] font-medium tracking-[0.06em] uppercase px-2.5 py-1 rounded bg-navy text-white opacity-85">${p.type}</span>
         </div>
         <h1 class="font-serif detail-title font-bold text-navy leading-[1.2] mb-2">${p.title}</h1>
@@ -591,19 +599,18 @@ function openDetail(id) {
           <h4 class="detail-h4 font-serif text-[1.2rem] font-semibold text-navy mb-4">Technical Specifications</h4>
           <table class="w-full border-collapse">
             <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted w-[45%]">Building Classification</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.floors}</td></tr>
-            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Total Floor Area</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.area}</td></tr>
-            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Contract Value</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.value}</td></tr>
             <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Client</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.client}</td></tr>
-            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Start Date</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.started}</td></tr>
-            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Target Completion</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.target}</td></tr>
-            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Project Location</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.location}</td></tr>
+            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Location</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.location}</td></tr>
+            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Project Type</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.type}</td></tr>
+            <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Status</td><td class="py-2.5 text-[14px] font-medium text-navy">${p.statusLabel}</td></tr>
             <tr class="spec-row"><td class="py-2.5 text-[14px] text-muted">Contractor</td><td class="py-2.5 text-[14px] font-medium text-navy">Swift Atlantis Contracting L.L.C</td></tr>
           </table>
         </div>
 
         <div class="mb-10">
-          <h4 class="detail-h4 font-serif text-[1.2rem] font-semibold text-navy mb-4">Photo Gallery</h4>
-          <div class="grid grid-cols-3 gap-4">${galleryHTML}</div>
+          <h4 class="detail-h4 font-serif text-[1.2rem] font-semibold text-navy mb-2">Project Gallery</h4>
+          <p class="text-[13px] text-muted mb-5">Click any photo to view full size.</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">${thumbsHTML}</div>
         </div>
       </div>
 
@@ -611,33 +618,30 @@ function openDetail(id) {
       <div class="lg:sticky lg:top-[80px]">
         <div class="bg-white rounded-xl border border-border p-6">
           <div class="mb-6 pb-6 border-b border-border">
-            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-1.5">Overall Progress</div>
-            <div class="text-[14px] font-medium text-navy">${p.progress}% Complete</div>
-            <div class="bg-border rounded-full h-1.5 overflow-hidden mt-2.5"><div class="h-full rounded-full bg-gold" style="width:${p.progress}%"></div></div>
-            <div class="flex justify-between text-[11px] text-muted mt-1.5"><span>Start: ${p.started}</span><span>End: ${p.target}</span></div>
-          </div>
-          <div class="mb-6 pb-6 border-b border-border">
-            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-1.5">Contract Value</div>
-            <div class="text-[14px] font-medium text-navy">${p.value}</div>
-            <div class="text-[12px] text-muted mt-0.5">Inclusive of all works</div>
-          </div>
-          <div class="mb-6 pb-6 border-b border-border">
-            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-1.5">Floor Area</div>
-            <div class="text-[14px] font-medium text-navy">${p.area}</div>
+            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-1.5">Project Type</div>
+            <div class="font-serif text-[1.3rem] font-bold text-navy">${p.type}</div>
           </div>
           <div class="mb-6 pb-6 border-b border-border">
             <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-1.5">Structure</div>
             <div class="text-[14px] font-medium text-navy">${p.floors}</div>
           </div>
+          <div class="mb-6 pb-6 border-b border-border">
+            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-1.5">Client</div>
+            <div class="text-[14px] font-medium text-navy">${p.client}</div>
+          </div>
+          <div class="mb-6 pb-6 border-b border-border">
+            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-1.5">Location</div>
+            <div class="text-[14px] font-medium text-navy">${p.location}</div>
+          </div>
           <div>
-            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-3">Construction Milestones</div>
-            <ul class="list-none">${msHTML}</ul>
+            <div class="text-[10px] font-semibold tracking-[0.12em] uppercase text-gold mb-2">Status</div>
+            <span class="text-[11px] font-semibold tracking-[0.08em] uppercase px-3 py-1.5 rounded ${sc}">${p.statusLabel}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- CTA strip -->
+    <!-- CTA -->
     <div class="bg-navy rounded-xl px-8 py-7 flex items-center justify-between flex-wrap gap-6 mt-12">
       <div>
         <h3 class="font-serif text-[1.3rem] font-bold text-white">Interested in a similar project?</h3>
@@ -647,8 +651,11 @@ function openDetail(id) {
     </div>
   `;
 
-  document.getElementById('detail-page').classList.remove('hidden');
-  document.getElementById('detail-page').scrollTop = 0;
+  window._detailGallery = p.gallery;
+
+  const detail = document.getElementById('detail-page');
+  detail.classList.remove('hidden');
+  detail.scrollTop = 0;
   document.body.style.overflow = 'hidden';
   history.pushState({detail: id}, '', '#project-' + id);
 }
@@ -667,7 +674,10 @@ window.addEventListener('popstate', function(e) {
 });
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && !document.getElementById('detail-page').classList.contains('hidden')) closeDetail();
+  if (e.key === 'Escape') {
+    if (document.getElementById('lightbox').classList.contains('open')) { closeLightbox(); return; }
+    if (!document.getElementById('detail-page').classList.contains('hidden')) closeDetail();
+  }
 });
 
 if (window.location.hash.startsWith('#project-')) {
