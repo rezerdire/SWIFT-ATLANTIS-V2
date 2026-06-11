@@ -80,6 +80,11 @@ tailwind.config = {
   .gallery-thumb:hover img { transform:scale(1.06); }
   .gallery-thumb-label { display:flex; align-items:center; justify-content:center; gap:5px; padding:6px 0; background:#F0EBE0; color:#6B7280; font-size:11px; }
 
+
+    .nav-logo-img { width: 44px; height: 44px; object-fit: contain; filter: brightness(0) invert(1); }
+    #navbar.scrolled .nav-logo-img { filter: brightness(0) invert(1); }
+    .nav-logo-img-default { width: 44px; height: 44px; object-fit: contain; }
+
   /* proj img placeholder for empty.jpg */
   .proj-img-wrap { background:#E8E4DC; }
 </style>
@@ -102,9 +107,13 @@ tailwind.config = {
 <nav class="fixed top-0 left-0 right-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-border px-[5%]">
   <div class="max-w-[1200px] mx-auto flex items-center justify-between h-[68px]">
     <a href="#" class="flex items-center gap-2.5 no-underline">
-      <div class="w-[38px] h-[38px] bg-navy rounded flex items-center justify-center shrink-0">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9973A" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
-      </div>
+    <div class="w-[38px] h-[38px]  flex items-center justify-center shrink-0">
+      <img
+        src="logo/logo-swift.png"
+        alt="Swift Atlantis Logo"
+        class="w-8 h-8 object-contain"
+      />
+    </div>
       <div class="leading-tight">
         <div class="font-serif text-[14px] font-bold text-navy tracking-wide">Swift Atlantis</div>
         <div class="text-2xs text-muted tracking-widest uppercase">Contracting L.L.C</div>
@@ -439,9 +448,9 @@ const BASE = 'https://swift-atlantis-system.vercel.app';
 const FALLBACK = 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=900&q=80';
 
 const PROJECTS = [
-  {id:1,  title:"Royal Miramar Resort",           type:"Resort",      location:"Al Aqah, Al Fujairah, UAE",                       status:"completed",   statusLabel:"Completed",   floors:"Main + Staff Building + Club House", client:"Private Developer",       description:"A prestigious 316-room luxury resort development in Al Aqah, Al Fujairah — comprising the main building, staff building, and club house. This landmark hospitality project demanded meticulous coordination of structural, MEP, and finishing trades to deliver a world-class guest experience.", scope:"Full main contracting including structural works, MEP coordination, interior fit-out, and landscaping across all three buildings.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/1.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/1.png']},
+  {id:1,  title:"Royal Miramar Resort",           type:"Resort",      location:"Al Aqah, Al Fujairah, UAE",                       status:"completed",   statusLabel:"Completed",   floors:"Main + Staff Building + Club House", client:"Private Developer",       description:"A prestigious 316-room luxury resort development in Al Aqah, Al Fujairah — comprising the main building, staff building, and club house. This landmark hospitality project demanded meticulous coordination of structural, MEP, and finishing trades to deliver a world-class guest experience.", scope:"Full main contracting including structural works, MEP coordination, interior fit-out, and landscaping across all three buildings.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/1.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/1.png',BASE+'/Images/PROJECTS-COVER-PHOTO/1.png',BASE+'/Images/PROJECTS-COVER-PHOTO/1.png']},
   {id:2,  title:"Damas Hotel",                    type:"Hotel",       location:"Dibba Al Fujairah, UAE",                          status:"completed",   statusLabel:"Completed",   floors:"B+G+7",                             client:"Private Developer",       description:"A B+G+7 floor hotel development in Dibba Al Fujairah — delivering a modern hospitality structure with full structural, MEP, and fit-out works completed to municipality standards.", scope:"Full structural, MEP, and fit-out works for a seven-floor hotel development.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/2.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/2.png']},
-  {id:3,  title:"2 Residential Buildings",         type:"Residential", location:"Muwaileh Commercial, Sharjah, UAE",               status:"completed",   statusLabel:"Completed",   floors:"B+G+7 (×2 Buildings)",            client:"Private Developer",       description:"Twin B+G+7 residential towers in Muwaileh Commercial, Sharjah — a dual-building residential project executed concurrently with coordinated scheduling to optimize delivery timelines.", scope:"Concurrent construction of two B+G+7 residential buildings including structural, MEP, and full fit-out.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/3.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/3.png']},
+  {id:3,  title:"2 Residential Buildings",         type:"Residential", location:"Muwaileh Commercial, Sharjah, UAE",               status:"completed",   statusLabel:"Completed",   floors:"B+G+7 (×2 Buildings)",            client:"Private Developer",       description:"Twin B+G+7 residential towers in Muwaileh Commercial, Sharjah — a dual-building residential project executed concurrently with coordinated scheduling to optimize delivery timelines.", scope:"Concurrent construction of two B+G+7 residential buildings including structural, MEP, and full fit-out.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/3.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/3.png']}, 
   {id:4,  title:"Residential Building",            type:"Residential", location:"Al Khan, Sharjah, UAE",                          status:"completed",   statusLabel:"Completed",   floors:"G+5P+15",                          client:"Private Developer",       description:"A high-rise residential tower (G+5P+15 typical floors) in Al Khan, Sharjah — a landmark multi-storey development delivering premium residential units with full structural and fit-out works.", scope:"Full main contracting from substructure through to finishing works for a 15-floor residential tower.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/4.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/4.png']},
   {id:5,  title:"2 Residential Buildings",         type:"Residential", location:"Jesco, Sharjah, UAE",                            status:"completed",   statusLabel:"Completed",   floors:"G+1 (×2 Buildings)",              client:"Private Developer",       description:"Two compact G+1 residential buildings in Jesco, Sharjah — a dual-building residential project efficiently delivered within a tight footprint.", scope:"Structural, MEP, and finishing works for two G+1 residential buildings.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/5.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/5.png']},
   {id:6,  title:"Hotel Apartment – Royal Bay",     type:"Hotel",       location:"Palm Jumeirah, Dubai, UAE",                      status:"completed",   statusLabel:"Completed",   floors:"B+G+8",                            client:"Royal Bay",               description:"A B+G+8 hotel apartment development on the iconic Palm Jumeirah — one of Dubai's most prestigious addresses, delivered with premium finishing standards under the Royal Bay brand.", scope:"Full main contracting including basement, superstructure, MEP, and premium hotel-grade finishing.", image:BASE+'/Images/PROJECTS-COVER-PHOTO/6.png',   gallery:[BASE+'/Images/PROJECTS-COVER-PHOTO/6.png']},
